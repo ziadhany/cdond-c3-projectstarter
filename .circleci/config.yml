@@ -71,7 +71,7 @@ jobs:
             cd frontend
             npm audit --audit-level=critical
       - slack/notify:
-          branch_pattern: main
+          branch_pattern: master
           event: fail
           template: basic_fail_1
   scan-backend:
@@ -87,7 +87,7 @@ jobs:
             cd backend
             npm audit --audit-level=critical
       - slack/notify:
-          branch_pattern: main
+          branch_pattern: master
           event: fail
           template: basic_fail_1
    
