@@ -14,6 +14,7 @@ jobs:
           command: |
             cd frontend
             npm install
+            npm install oauth-sign@^0.9.0
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
@@ -69,7 +70,7 @@ jobs:
           name: scan frontend
           command: |
             cd frontend
-            npm audit --audit-level=critical
+            npm audit --audit-level=critical --force
       - slack/notify:
           branch_pattern: master
           event: fail
@@ -85,7 +86,7 @@ jobs:
           name: scan backend
           command: |
             cd backend
-            npm audit --audit-level=critical
+            npm audit --audit-level=critical --force
       - slack/notify:
           branch_pattern: master
           event: fail
