@@ -70,6 +70,10 @@ jobs:
           command: |
             cd frontend
             npm audit --audit-level=critical
+      - slack/notify:
+          branch_pattern: main
+          event: fail
+          template: basic_fail_1
   scan-backend:
     docker:
        - image: circleci/node:13.8.0
@@ -82,28 +86,11 @@ jobs:
           command: |
             cd backend
             npm audit --audit-level=critical
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - run: echo "prepare for deploying my app"
       - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "Uh-oh , this workflow did not succeed",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
+          branch_pattern: main
+          event: fail
+          template: basic_fail_1
+   
 workflows:
   default:
     jobs:
@@ -117,7 +104,3 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - notify:
-          requires: [build-frontend, build-backend, scan-backend, scan-frontend]
-          context: slack-secrets
-          event: fail
