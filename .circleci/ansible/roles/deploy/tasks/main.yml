@@ -1,0 +1,29 @@
+---
+  - name: "update cache"
+    become: yes
+    apt:
+      update_cache: yes
+      cache_valid_time: 5500
+
+  - name: "upgrade packages"
+    become: yes
+    apt: 
+      upgrade: yes
+  
+  - name: "remove those dependencies that were installed with applications and are no longer used by anything else on the system."
+    become: yes
+    apt:
+      autoremove: yes
+
+  - name: "unzip build-artifact"
+    become: yes
+    unarchive:
+      src: "files/build-artifact.tar.gz"
+      dest: .
+
+  - name: "deploy backend"
+    become: yes
+    shell: |
+      npm install
+      pm2 stop default
+      pm2 start npm -- start
