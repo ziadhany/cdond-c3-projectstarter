@@ -8,11 +8,26 @@ commands:
       - run:
           when: on_fail
           command: |
-            echo "Destroy environment: ${CIRCLE_WORKFLOW_ID:0:7}"          
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}  
             aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
-
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.  
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            SUCCESS = 1
+            if(( $SUCCESS==1 )); 
+            then
+            #  cd ~/project/backend
+            #  npm install
+            #  Add revert code here. You can find this in the Getting Started section.
+              exit 1
+            fi
+ 
 jobs:
   build-frontend:
     docker:
@@ -156,10 +171,10 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cd ~/project/.circleci/ansible/
-            ansible-playbook -i inventory.txt configure-server.yml
+            ls 
+            ansible-playbook -i ~/inventory.txt configure-server.yml
       - destroy-environment
-
+  
 workflows:
   default:
     jobs:
