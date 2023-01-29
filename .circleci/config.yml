@@ -221,8 +221,28 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - revert-migrations     
-                    
+      - revert-migrations                  
+  deploy-backend:
+    docker:
+      - image: python:3.8.16-alpine3.17
+    steps:
+      - checkout
+      - add_ssh_keys: 
+          fingerprints: ["30:09:7d:81:2c:fa:13:87:f8:43:fe:03:54:a5:fc:a6"]
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache tar gzip nodejs npm ansible aws-cli 
+      - run:
+          name: Deploy backend
+          command: |
+              cd .circleci/ansible
+              ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment
+      - revert-migrations
+                  
 workflows:
   default:
     jobs:
