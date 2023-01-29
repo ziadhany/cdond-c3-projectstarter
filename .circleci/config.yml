@@ -171,8 +171,9 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ls 
-            ansible-playbook -i ~/inventory.txt configure-server.yml
+            cat ~/inventory.txt
+            cat  ~/project/.circleci/ansible/inventory.txt
+            ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-server.yml
       - destroy-environment
   
 workflows:
