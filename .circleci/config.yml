@@ -173,11 +173,11 @@ jobs:
               ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
-
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
       - run:
           name: Run migrations
           command: |
@@ -185,15 +185,42 @@ jobs:
             npm install
             npm run migrations > migrations_dump.txt
       - run:
-          name: Send migration results to kvdb
+          name: install pyhton and send migration results to kvdb
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/YaEDFqZFjsT2KajGqUME4R/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1' --insecure
             fi
-      - destroy-environment
       - revert-migrations     
-
+  deploy-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies (awscli )
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"
+            unzip awscli.zip
+            sudo ./aws/install
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances...............)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - revert-migrations     
+                    
 workflows:
   default:
     jobs:
@@ -216,3 +243,5 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
