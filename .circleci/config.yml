@@ -25,7 +25,7 @@ commands:
                 npm install
                 npm run migration:revert
             fi  
- 
+
 jobs:
   build-frontend:
     docker:
@@ -174,6 +174,26 @@ jobs:
       - destroy-environment
       - revert-migrations
 
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration results to kvdb
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              curl https://kvdb.io/YaEDFqZFjsT2KajGqUME4R/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1' --insecure
+            fi
+      - destroy-environment
+      - revert-migrations     
+
 workflows:
   default:
     jobs:
@@ -194,3 +214,5 @@ workflows:
               only: [master] #test-feature-branch
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
