@@ -18,15 +18,13 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            SUCCESS=$(curl --insecure  https://kvdb.io/YaEDFqZFjsT2KajGqUME4R/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if (( $SUCCESS == 1 ));
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
-            fi
+                cd ~/project/backend
+                npm install
+                npm run migration:revert
+            fi  
  
 jobs:
   build-frontend:
@@ -171,11 +169,12 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cat ~/inventory.txt
-            cat  ~/project/.circleci/ansible/inventory.txt
-            ansible-playbook -i ~/inventory.txt ~/project/.circleci/ansible/configure-server.yml
+            cd ~/project/.circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
-  
+      - revert-migrations
+
 workflows:
   default:
     jobs:
