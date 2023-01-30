@@ -169,7 +169,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-              cd .circleci/ansible
+              cd ~/project/.circleci/ansible
               ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
@@ -242,8 +242,7 @@ jobs:
               cat inventory.txt
               ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
-      - revert-migrations
-     
+      - revert-migrations    
   smoke-test:
     docker:
       - image: amazon/aws-cli
@@ -299,7 +298,6 @@ jobs:
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
       # Here's where you will add some code to rollback on failure  
-
   cleanup:
       docker:
           - image: amazon/aws-cli
@@ -316,7 +314,9 @@ jobs:
             command: |
               if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
               then
-                # your code here
+                aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+                aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               fi
   
              
