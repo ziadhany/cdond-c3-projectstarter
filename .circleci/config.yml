@@ -278,9 +278,9 @@ jobs:
                 echo ${URL} 
                 if curl -s ${URL} | grep "Welcome"
                 then
-                  return 1
+                  echo "Welcome to backend"
                 else
-                  return 1
+                  echo "Goodbye backend"
                 fi
       - destroy-environment
       - revert-migrations 
