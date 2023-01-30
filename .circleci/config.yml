@@ -226,27 +226,36 @@ jobs:
       - checkout
       - add_ssh_keys: 
           fingerprints: ["30:09:7d:81:2c:fa:13:87:f8:43:fe:03:54:a5:fc:a6"]
-      - restore_cache:
-          keys: [backend-build]
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
             apk add --update --no-cache tar gzip nodejs npm ansible aws-cli 
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            tar -C backend -czvf build-artifact.tar.gz .
+            mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+            mv build-artifact.tar.gz .circleci/ansible/roles/deploy/files/build-artifact.tar.gz
       - run:
           name: Deploy backend
           command: |
               cd .circleci/ansible
+              echo "Contents  of the inventory.txt file is -------"
               cat inventory.txt
               ansible-playbook -i inventory.txt configure-server.yml
+
   smoke-test:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
       - run:
-          name: Get backend url
+          name: Get backend url and test 
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
