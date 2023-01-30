@@ -322,7 +322,11 @@ jobs:
       - image: cimg/base:stable
     steps:
       - checkout
-      - install_awscli
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar curl gzip
+            sudo apt install -y awscli
       - attach_workspace:
           at: ~/
       - run:
