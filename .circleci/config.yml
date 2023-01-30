@@ -256,7 +256,6 @@ jobs:
               echo "Contents  of the inventory.txt file is -------"
               cat inventory.txt
               ansible-playbook -i inventory.txt configure-server.yml
-
   smoke-test:
     docker:
       - image: amazon/aws-cli
@@ -284,7 +283,6 @@ jobs:
                 fi
       - destroy-environment
       - revert-migrations 
-
   cloudfront-update:
     docker:
       - image: circleci/node:13.8.0
@@ -319,6 +317,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            sudo apt-get update 
             sudo apt install -y tar curl gzip
             sudo apt install -y awscli
       - attach_workspace:
