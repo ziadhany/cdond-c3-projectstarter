@@ -241,7 +241,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-              cd .circleci/ansible
+              cd .circleci/ansible/
               cat inventory.txt
               ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
@@ -255,7 +255,7 @@ jobs:
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query "Reservations[*].Instances[*].PublicDnsName" \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"   
