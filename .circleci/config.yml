@@ -149,6 +149,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy-environment
+      - revert-migrations
   configure-infrastructure:
     docker:
       - image: python:3.8.16-alpine3.17
@@ -172,6 +174,8 @@ jobs:
               cd ~/project/.circleci/ansible
               cat inventory.txt
               ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment
+      - revert-migrations
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -191,6 +195,8 @@ jobs:
             then
               curl https://kvdb.io/YaEDFqZFjsT2KajGqUME4R/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1' --insecure
             fi
+      - destroy-environment
+      - revert-migrations
   deploy-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -218,7 +224,9 @@ jobs:
             cd frontend
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive               
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment
+      - revert-migrations               
   deploy-backend:
     docker:
       - image: python:3.8.16-alpine3.17
@@ -263,12 +271,6 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"   
             echo "${API_URL}"
-            if curl "${API_URL}/api/status" | grep "ok"
-            then
-                return 0
-            else
-                return 0
-            fi
       - run:
           name: Frontend smoke test.
           command: |
@@ -280,6 +282,8 @@ jobs:
                 else
                   return 1
                 fi
+      - destroy-environment
+      - revert-migrations 
   cloudfront-update:
     docker:
           - image: circleci/node:13.8.0
@@ -297,7 +301,8 @@ jobs:
               --stack-name InitialStack \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
-      # Here's where you will add some code to rollback on failure  
+      - destroy-environment
+      - revert-migrations 
   cleanup:
       docker:
           - image: amazon/aws-cli
