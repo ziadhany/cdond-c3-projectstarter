@@ -184,6 +184,10 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
+          name: install dependencies
+          command: |
+              apk add --update --no-cache tar gzip aws-cli 
+      - run:
           name: Run migrations
           command: |
             cd backend
@@ -332,9 +336,12 @@ jobs:
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 ls
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              echo "Delete udapeople-backend SUCCESS "
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              echo "Delete s3 SUCCESS "
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              echo "Delete udapeople-frontend SUCCESS "
             fi
 workflows:
   default:
