@@ -1,4 +1,6 @@
-[URL01]
+[URL01] 
 https://github.com/ziadhany/cdond-c3-projectstarter
 [URL02]
+http://udapeople-6de6bcd.s3-website-us-west-2.amazonaws.com/
+
 https://d1lvmz8kl4lyye.cloudfront.net
