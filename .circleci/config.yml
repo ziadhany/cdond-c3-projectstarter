@@ -271,6 +271,7 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"   
             echo "${API_URL}"
+            exit 1 
       - run:
           name: frontend smoke test.
           command: |
@@ -280,7 +281,7 @@ jobs:
                 then
                   echo "Welcome to backend"
                 else
-                  echo "Goodbye backend"
+                  exit 1  
                 fi
       - destroy-environment
       - revert-migrations 
