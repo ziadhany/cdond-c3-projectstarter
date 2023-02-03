@@ -271,7 +271,6 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"   
             echo "${API_URL}"
-            exit 1 
       - run:
           name: frontend smoke test.
           command: |
