@@ -1,6 +1,6 @@
 [URL01] 
 https://github.com/ziadhany/cdond-c3-projectstarter
 [URL02]
-http://udapeople-9f977a0.s3-website-us-west-2.amazonaws.com/
+http://udapeople-d9093c9.s3-website-us-west-2.amazonaws.com/
 
-https://d1m9kmk50qiwpr.cloudfront.net
+d21oq6hu8sbcql.cloudfront.net
